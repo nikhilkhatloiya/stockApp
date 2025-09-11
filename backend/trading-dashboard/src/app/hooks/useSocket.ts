@@ -4,26 +4,21 @@ import { io, Socket } from "socket.io-client";
 let socket: Socket;
 
 export function useSocket() {
-  const [prices, setPrices] = useState<any[]>([]);
+  const [prices, setPrices] = useState<{ symbol: string; price: string }[]>([]);
 
   useEffect(() => {
-    socket = io("http://localhost:5000"); // backend URL
+    socket = io("http://localhost:4000"); // backend port
 
-    socket.on("connect", () => {
-      console.log("✅ Connected to WebSocket:", socket.id);
-    });
+    socket.on("connect", () => console.log("✅ Connected:", socket.id));
 
     socket.on("priceUpdate", (data) => {
-      console.log("📈 Received:", data);
       setPrices(data);
     });
 
-    socket.on("disconnect", () => {
-      console.log("❌ Disconnected from server");
-    });
+    socket.on("disconnect", () => console.log("❌ Disconnected"));
 
     return () => {
-      socket.disconnect();
+      if (socket) socket.disconnect();
     };
   }, []);
 
