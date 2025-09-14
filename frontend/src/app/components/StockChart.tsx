@@ -14,7 +14,7 @@ interface StockChartProps {
 const StockChart: React.FC<StockChartProps> = ({ symbol, history }) => {
   const data = history.map((entry) => ({
     price: entry.price,
-    time: new Date(entry.timestamp).toLocaleTimeString()
+    time: new Date(entry.timestamp).toISOString().split('T')[1].split('.')[0]
   }));
 
   return (

@@ -150,13 +150,16 @@ class ChangeStreamService {
       dayLow: stock.dayLow,
       fiftyTwoWeekHigh: stock.fiftyTwoWeekHigh,
       fiftyTwoWeekLow: stock.fiftyTwoWeekLow,
-      lastUpdated: stock.lastUpdated,
+      lastUpdated: stock.lastUpdated ? stock.lastUpdated.toISOString() : null, // ✅ always ISO string
       isActive: stock.isActive,
-      history: stock.history?.slice(-10), // Send only last 10 history points to reduce payload
+      history: stock.history?.slice(-10).map(h => ({
+        price: h.price,
+        timestamp: h.timestamp.toISOString(), // ✅ also normalize history timestamps
+      })),
       metadata: stock.metadata,
       formattedChange: `${stock.change >= 0 ? '+' : ''}${stock.change.toFixed(2)} (${stock.change >= 0 ? '+' : ''}${stock.changePercent.toFixed(2)}%)`
     };
-  }
+  }  
 
   // Method to broadcast current stock prices to all connected clients
   async broadcastCurrentPrices() {

@@ -29,8 +29,16 @@ export default function HomePage() {
   const [isConnected, setIsConnected] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
   const [socket, setSocket] = useState<Socket | null>(null);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    // Temporarily remove mounted check to debug
+    // if (!mounted) return;
+    
     console.log('🔌 Connecting to Socket.IO server at:', SOCKET_URL);
     
     // Initialize Socket.IO connection
@@ -42,6 +50,7 @@ export default function HomePage() {
 
     newSocket.on('connect', () => {
       console.log('✅ Connected to server');
+      console.log('🔌 Socket ID:', newSocket.id);
       setIsConnected(true);
     });
 
@@ -52,12 +61,19 @@ export default function HomePage() {
 
     newSocket.on('connect_error', (error) => {
       console.error('🚨 Connection error:', error);
+      console.error('🚨 Error details:', error.message);
       setIsConnected(false);
+    });
+
+    // Test listener
+    newSocket.on('test', (data) => {
+      console.log('🧪 Received test data:', data);
     });
 
     // Listen for initial stock data
     newSocket.on('initialStockData', (data: Stock[]) => {
       console.log('📊 Received initial stock data:', data);
+      console.log('📊 Number of stocks:', data.length);
       setStocks(data);
       setLastUpdate(new Date());
     });
@@ -65,8 +81,20 @@ export default function HomePage() {
     // Listen for real-time price updates
     newSocket.on('priceUpdate', (data: Stock[]) => {
       console.log('💹 Received price update:', data);
-      setStocks(data);
-      setLastUpdate(new Date());
+      if (Array.isArray(data) && data.length > 0) {
+        if (data.length === 1) {
+          // Single stock update
+          setStocks(prevStocks => 
+            prevStocks.map(stock => 
+              stock.symbol === data[0].symbol ? data[0] : stock
+            )
+          );
+        } else {
+          // Multiple stocks update (initial data)
+          setStocks(data);
+        }
+        setLastUpdate(new Date());
+      }
     });
 
     // Listen for individual stock updates
@@ -94,7 +122,7 @@ export default function HomePage() {
       console.log('🧹 Cleaning up Socket.IO connection');
       newSocket.close();
     };
-  }, []);
+  }, []); // Remove mounted dependency for now
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -125,6 +153,21 @@ export default function HomePage() {
     return '➖';
   };
 
+  // Temporarily remove mounted check to debug hydration issues
+  // if (!mounted) {
+  //   return (
+  //     <main className="p-8 bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+  //       <div className="max-w-7xl mx-auto">
+  //         <div className="text-center py-12">
+  //           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+  //           <p className="text-gray-600">Loading... (Not mounted yet)</p>
+  //           <p className="text-sm text-gray-500 mt-2">Mounted: {mounted ? 'Yes' : 'No'}</p>
+  //         </div>
+  //       </div>
+  //     </main>
+  //   );
+  // }
+
   return (
     <main className="p-8 bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
       <div className="max-w-7xl mx-auto">
@@ -150,7 +193,7 @@ export default function HomePage() {
             
             {lastUpdate && (
               <div className="text-sm text-gray-500">
-                Last update: {lastUpdate.toLocaleTimeString()}
+                Last update: {lastUpdate.toISOString().split('T')[1].split('.')[0]}
               </div>
             )}
           </div>
@@ -161,6 +204,8 @@ export default function HomePage() {
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
             <p className="text-gray-600">Loading stock data...</p>
+            <p className="text-sm text-gray-500 mt-2">Connected: {isConnected ? 'Yes' : 'No'}</p>
+            <p className="text-sm text-gray-500">Stocks: {stocks.length}</p>
           </div>
         )}
 

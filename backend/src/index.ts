@@ -141,6 +141,17 @@ app.get("/", (req, res) => {
   });
 });
 
+// Test endpoint to verify Socket.IO data
+app.get("/test-socket", (req, res) => {
+  if (io) {
+    const testData = { message: "Test from server", timestamp: new Date().toISOString() };
+    io.emit('test', testData);
+    res.json({ message: "Test data sent via Socket.IO", data: testData });
+  } else {
+    res.json({ error: "Socket.IO not initialized" });
+  }
+});
+
 // API routes
 app.use("/api/stocks", stockRoutes);
 app.use("/api/users", userRoutes);

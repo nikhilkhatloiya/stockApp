@@ -53,7 +53,8 @@ const isDatabaseConnected = () => {
 router.get("/", async (req, res) => {
   try {
     if (isDatabaseConnected()) {
-      const stocks = await Stock.find({});
+      const stocks = await Stock.find({ isActive: true }).sort({ symbol: 1 });
+      console.log(`📊 Found ${stocks.length} active stocks in database`);
       res.json(stocks);
     } else {
       console.log("📊 Using mock stock data (database not connected)");

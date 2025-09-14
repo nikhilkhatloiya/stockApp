@@ -39,18 +39,20 @@ const StockDashboard: React.FC = () => {
     s.on("connect", () => console.log("✅ Connected to backend:", s.id));
 
     s.on("priceUpdate", (data: Stock[]) => {
-      const cleanData: Stock[] = data.map((stock) => ({
-        symbol: stock.symbol,
-        name: stock.name,
-        price: stock.price,
-        previousClose: stock.previousClose,
-        change: stock.change,
-        changePercent: stock.changePercent,
-        lastUpdated: new Date(stock.lastUpdated).toISOString(),
-      }));
-      setStocks(cleanData);
+        const cleanData: Stock[] = data.map((stock) => ({
+            symbol: stock.symbol,
+            name: stock.name,
+            price: stock.price,
+            previousClose: stock.previousClose,
+            change: stock.change,
+            changePercent: stock.changePercent,
+            lastUpdated: stock.lastUpdated
+            ? new Date(stock.lastUpdated).toISOString()
+            : new Date().toISOString(),
+        }));
+        setStocks(cleanData);
     });
-
+      
     s.on("disconnect", () => console.log("❌ Disconnected from backend"));
 
     // cleanup on unmount
@@ -143,7 +145,7 @@ const StockDashboard: React.FC = () => {
                   color="text.secondary"
                   className="block mt-2 text-right"
                 >
-                  {new Date(stock.lastUpdated).toLocaleTimeString()}
+                  {new Date(stock.lastUpdated).toISOString().split('T')[1].split('.')[0]}
                 </Typography>
               </CardContent>
             </Card>
