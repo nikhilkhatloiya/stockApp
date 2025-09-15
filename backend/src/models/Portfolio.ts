@@ -1,12 +1,12 @@
-import mongoose, { Schema, Document, Types } from "mongoose";
+import mongoose, { Schema, Document } from "mongoose";
 
 export interface IPortfolio extends Document {
-  userId: Types.ObjectId;  // not string, it's ObjectId
+  userId: string;  // Changed to string for demo purposes
   stocks: { symbol: string; quantity: number; avgPrice: number }[];
 }
 
 const portfolioSchema = new Schema<IPortfolio>({
-  userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+  userId: { type: String, required: true },
   stocks: [
     {
       symbol: { type: String, required: true },

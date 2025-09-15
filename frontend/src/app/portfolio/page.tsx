@@ -82,6 +82,7 @@ export default function PortfolioPage() {
       try {
         const response = await fetch(`${SOCKET_URL.replace('ws://', 'http://').replace('wss://', 'https://')}/api/portfolio/${userId}`);
         const data = await response.json();
+        console.log(" data123", data);
         setPortfolio(data);
       } catch (error) {
         console.error('Error fetching portfolio data:', error);
@@ -261,7 +262,7 @@ export default function PortfolioPage() {
             </div>
             <div className="text-center">
               <div className={`text-4xl font-bold mb-2 ${getChangeColor(portfolio.totalGainPercent)}`}>
-                {portfolio.totalGainPercent >= 0 ? '+' : ''}{portfolio.totalGainPercent.toFixed(2)}%
+                {portfolio.totalGainPercent >= 0 ? '+' : ''}{(portfolio?.totalGainPercent ?? 0).toFixed(2)}%
               </div>
               <div className="text-sm text-gray-400">Total Return</div>
             </div>

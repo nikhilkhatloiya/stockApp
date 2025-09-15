@@ -7,11 +7,50 @@ const router = Router();
 // GET portfolio by userId
 router.get("/:userId", async (req, res) => {
   try {
+    console.log(`📊 Fetching portfolio for userId: ${req.params.userId}`);
     const portfolio = await Portfolio.findOne({ userId: req.params.userId });
-    if (!portfolio) return res.json({ stocks: [] });
+    if (!portfolio) {
+      console.log(`📊 No portfolio found for userId: ${req.params.userId}, returning empty portfolio`);
+      return res.json({ stocks: [] });
+    }
+    console.log(`📊 Found portfolio with ${portfolio.stocks.length} stocks`);
     res.json(portfolio);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching portfolio" });
+    console.error("❌ Error fetching portfolio:", error);
+    res.status(500).json({ message: "Error fetching portfolio", error: (error as Error).message });
+  }
+});
+
+// GET all portfolios (for admin/debugging)
+router.get("/", async (req, res) => {
+  try {
+    console.log("📊 Fetching all portfolios");
+    const portfolios = await Portfolio.find({});
+    console.log(`📊 Found ${portfolios.length} portfolios`);
+    res.json(portfolios);
+  } catch (error) {
+    console.error("❌ Error fetching all portfolios:", error);
+    res.status(500).json({ message: "Error fetching portfolios", error: (error as Error).message });
+  }
+});
+
+// POST create/update portfolio (for seeding data)
+router.post("/", async (req, res) => {
+  try {
+    const { userId, stocks } = req.body;
+    console.log(`📊 Creating/updating portfolio for userId: ${userId}`);
+    
+    const portfolio = await Portfolio.findOneAndUpdate(
+      { userId },
+      { userId, stocks },
+      { upsert: true, new: true }
+    );
+    
+    console.log(`📊 Portfolio ${portfolio ? 'created/updated' : 'failed'} with ${stocks?.length || 0} stocks`);
+    res.json(portfolio);
+  } catch (error) {
+    console.error("❌ Error creating/updating portfolio:", error);
+    res.status(500).json({ message: "Error creating/updating portfolio", error: (error as Error).message });
   }
 });
 
