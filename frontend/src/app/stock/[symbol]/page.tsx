@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { io, Socket } from "socket.io-client";
 import { SOCKET_URL } from "../../config";
 import Link from "next/link";
@@ -27,13 +27,12 @@ interface Stock {
 
 export default function StockDetailPage() {
   const params = useParams();
-  const router = useRouter();
   const symbol = params.symbol as string;
   
   const [stock, setStock] = useState<Stock | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
-  const [socket, setSocket] = useState<Socket | null>(null);
+  const [, setSocket] = useState<Socket | null>(null);
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -152,9 +151,9 @@ export default function StockDetailPage() {
 
   if (!mounted) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-red-900 to-slate-900 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-4 border-purple-500 border-t-transparent mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-red-500 border-t-transparent mx-auto mb-4"></div>
           <p className="text-white text-lg">Loading...</p>
         </div>
       </div>
@@ -163,9 +162,9 @@ export default function StockDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-red-900 to-slate-900 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-4 border-purple-500 border-t-transparent mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-red-500 border-t-transparent mx-auto mb-4"></div>
           <p className="text-white text-lg">Loading stock data...</p>
         </div>
       </div>
@@ -174,14 +173,14 @@ export default function StockDetailPage() {
 
   if (!stock) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-red-900 to-slate-900 flex items-center justify-center">
         <div className="text-center">
           <div className="text-8xl mb-6">❌</div>
           <h1 className="text-3xl font-bold text-white mb-4">Stock Not Found</h1>
-          <p className="text-gray-400 mb-8">The stock symbol "{symbol}" could not be found.</p>
+          <p className="text-gray-400 mb-8">The stock symbol &quot;{symbol}&quot; could not be found.</p>
           <Link
             href="/"
-            className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-medium px-8 py-4 rounded-xl transition-all duration-200 inline-block"
+            className="bg-gradient-to-r from-red-600 to-blue-600 hover:from-red-700 hover:to-blue-700 text-white font-medium px-8 py-4 rounded-xl transition-all duration-200 inline-block"
           >
             ← Back to Dashboard
           </Link>
@@ -191,7 +190,7 @@ export default function StockDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-red-900 to-slate-900">
       {/* Header */}
       <header className="bg-black/20 backdrop-blur-lg border-b border-white/10 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -199,7 +198,7 @@ export default function StockDetailPage() {
             <div className="flex items-center space-x-4">
               <Link
                 href="/"
-                className="text-2xl hover:text-purple-400 transition-colors"
+                className="text-2xl hover:text-red-400 transition-colors"
               >
                 ←
               </Link>
@@ -241,7 +240,7 @@ export default function StockDetailPage() {
               </div>
               <h2 className="text-xl text-gray-300 mb-2">{stock.name}</h2>
               {stock.metadata?.exchange && (
-                <span className="inline-block bg-purple-500/20 text-purple-300 text-sm px-3 py-1 rounded-full">
+                <span className="inline-block bg-red-500/20 text-red-300 text-sm px-3 py-1 rounded-full">
                   {stock.metadata.exchange}
                 </span>
               )}
@@ -362,7 +361,7 @@ export default function StockDetailPage() {
         <div className="mt-8 text-center">
           <Link
             href="/"
-            className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-medium px-8 py-4 rounded-xl transition-all duration-200 inline-block shadow-lg hover:shadow-purple-500/25"
+            className="bg-gradient-to-r from-red-600 to-blue-600 hover:from-red-700 hover:to-blue-700 text-white font-medium px-8 py-4 rounded-xl transition-all duration-200 inline-block shadow-lg hover:shadow-red-500/25"
           >
             ← Back to Dashboard
           </Link>

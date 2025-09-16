@@ -4,6 +4,8 @@ import React from "react";
 
 import "./globals.css";
 import { MUIThemeProvider } from "./components/MUIThemeProvider";
+import { AuthProvider } from "./contexts/AuthContext";
+import LayoutWrapper from "./components/LayoutWrapper";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,7 +18,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Stock Dashboard",
+  title: "StockApp - Real-time Stock Dashboard",
   description: "Real-time stock prices with MongoDB Atlas integration",
 };
 
@@ -29,7 +31,11 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <MUIThemeProvider>
-          {children}
+          <AuthProvider>
+            <LayoutWrapper>
+              {children}
+            </LayoutWrapper>
+          </AuthProvider>
         </MUIThemeProvider>
       </body>
     </html>

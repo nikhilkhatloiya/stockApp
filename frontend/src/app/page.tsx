@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { io, Socket } from "socket.io-client";
 import { SOCKET_URL } from "./config";
+import { useAuth } from "./contexts/AuthContext";
 
 interface Stock {
   _id: string;
@@ -24,11 +26,11 @@ interface Stock {
   };
 }
 
-export default function HomePage() {
+function DashboardContent() {
   const [stocks, setStocks] = useState<Stock[]>([]);
   const [isConnected, setIsConnected] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
-  const [socket, setSocket] = useState<Socket | null>(null);
+  const [, setSocket] = useState<Socket | null>(null);
   const [mounted, setMounted] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState<"symbol" | "price" | "change" | "volume">("symbol");
@@ -189,9 +191,9 @@ export default function HomePage() {
 
   if (!mounted) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-red-900 to-slate-900 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-4 border-purple-500 border-t-transparent mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-red-500 border-t-transparent mx-auto mb-4"></div>
           <p className="text-white text-lg">Initializing...</p>
         </div>
       </div>
@@ -199,40 +201,25 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      {/* Header */}
-      <header className="bg-black/20 backdrop-blur-lg border-b border-white/10 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-4">
-              <div className="text-2xl">📈</div>
-              <h1 className="text-2xl font-bold text-white">Live Stock Dashboard</h1>
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              {/* Connection Status */}
-              <div className={`flex items-center px-3 py-1.5 rounded-full text-sm font-medium ${
-                isConnected 
-                  ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' 
-                  : 'bg-red-500/20 text-red-400 border border-red-500/30'
-              }`}>
-                <div className={`w-2 h-2 rounded-full mr-2 ${
-                  isConnected ? 'bg-emerald-400 animate-pulse' : 'bg-red-400'
-                }`}></div>
-                {isConnected ? 'Live' : 'Offline'}
-              </div>
-              
-              {lastUpdate && (
-                <div className="text-sm text-gray-300 hidden sm:block">
-                  Last update: {lastUpdate.toISOString().split('T')[1].split('.')[0]}
-                </div>
-              )}
-            </div>
-          </div>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Connection Status */}
+      <div className="mb-6 flex justify-center">
+        <div className={`flex items-center px-4 py-2 rounded-full text-sm font-medium ${
+          isConnected 
+            ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' 
+            : 'bg-red-500/20 text-red-400 border border-red-500/30'
+        }`}>
+          <div className={`w-2 h-2 rounded-full mr-2 ${
+            isConnected ? 'bg-emerald-400 animate-pulse' : 'bg-red-400'
+          }`}></div>
+          {isConnected ? 'Live' : 'Offline'}
+          {lastUpdate && (
+            <span className="ml-2 text-xs">
+              Last update: {lastUpdate.toISOString().split('T')[1].split('.')[0]}
+            </span>
+          )}
         </div>
-      </header>
-
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      </div>
         {/* Search and Filter Controls */}
         <div className="mb-8 space-y-4">
           {/* Search Bar */}
@@ -247,7 +234,7 @@ export default function HomePage() {
               placeholder="Search stocks by symbol or name..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent backdrop-blur-sm"
+              className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent backdrop-blur-sm"
             />
           </div>
 
@@ -257,8 +244,8 @@ export default function HomePage() {
               <label className="text-sm text-gray-300">Sort by:</label>
               <select
                 value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as any)}
-                className="bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                onChange={(e) => setSortBy(e.target.value as "symbol" | "price" | "change" | "volume")}
+                className="bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
               >
                 <option value="symbol">Symbol</option>
                 <option value="price">Price</option>
@@ -280,7 +267,7 @@ export default function HomePage() {
         {/* Loading State */}
         {stocks.length === 0 && isConnected && (
           <div className="text-center py-16">
-            <div className="animate-spin rounded-full h-16 w-16 border-4 border-purple-500 border-t-transparent mx-auto mb-4"></div>
+            <div className="animate-spin rounded-full h-16 w-16 border-4 border-red-500 border-t-transparent mx-auto mb-4"></div>
             <p className="text-white text-lg">Loading stock data...</p>
             <p className="text-gray-400 text-sm mt-2">Connected: {isConnected ? 'Yes' : 'No'}</p>
           </div>
@@ -301,7 +288,7 @@ export default function HomePage() {
             {filteredStocks.map((stock, index) => (
               <div 
                 key={stock.symbol} 
-                className="group bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:bg-white/10 hover:border-white/20 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/20"
+                className="group bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:bg-white/10 hover:border-white/20 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-red-500/20"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
                 {/* Stock Header */}
@@ -313,7 +300,7 @@ export default function HomePage() {
                     </div>
                     <p className="text-sm text-gray-400 truncate">{stock.name}</p>
                     {stock.metadata?.exchange && (
-                      <span className="inline-block bg-purple-500/20 text-purple-300 text-xs px-2 py-1 rounded-full mt-2">
+                      <span className="inline-block bg-red-500/20 text-red-300 text-xs px-2 py-1 rounded-full mt-2">
                         {stock.metadata.exchange}
                       </span>
                     )}
@@ -351,7 +338,7 @@ export default function HomePage() {
                 {/* View Details Button */}
                 <Link
                   href={`/stock/${stock.symbol}`}
-                  className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-medium py-3 px-4 rounded-xl transition-all duration-200 inline-block text-center group-hover:shadow-lg group-hover:shadow-purple-500/25"
+                  className="w-full bg-gradient-to-r from-red-600 to-blue-600 hover:from-red-700 hover:to-blue-700 text-white font-medium py-3 px-4 rounded-xl transition-all duration-200 inline-block text-center group-hover:shadow-lg group-hover:shadow-red-500/25"
                 >
                   View Details →
                 </Link>
@@ -421,7 +408,34 @@ export default function HomePage() {
             <span>API Documentation</span>
           </Link>
         </div>
-      </main>
     </div>
   );
+}
+
+export default function HomePage() {
+  const { isAuthenticated, loading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && !isAuthenticated) {
+      router.push("/landing");
+    }
+  }, [isAuthenticated, loading, router]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-red-900 to-slate-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-red-500 border-t-transparent mx-auto mb-4"></div>
+          <p className="text-white text-lg">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return null; // Will redirect to landing
+  }
+
+  return <DashboardContent />;
 }

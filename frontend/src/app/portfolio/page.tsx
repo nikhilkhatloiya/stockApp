@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { io, Socket } from "socket.io-client";
 import { SOCKET_URL } from "../config";
+import { useAuth } from "../contexts/AuthContext";
+import ProtectedRoute from "../components/ProtectedRoute";
 
 interface Stock {
   symbol: string;
@@ -15,6 +17,7 @@ interface Stock {
   totalValue?: number;
   totalGain?: number;
   totalGainPercent?: number;
+  price?: number; // Add price property for real-time updates
 }
 
 interface PortfolioData {
@@ -24,7 +27,7 @@ interface PortfolioData {
   totalGainPercent: number;
 }
 
-export default function PortfolioPage() {
+function PortfolioContent() {
   const [portfolio, setPortfolio] = useState<PortfolioData>({
     stocks: [],
     totalValue: 0,
@@ -33,10 +36,11 @@ export default function PortfolioPage() {
   });
   const [isConnected, setIsConnected] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
-  const [socket, setSocket] = useState<Socket | null>(null);
+  const [, setSocket] = useState<Socket | null>(null);
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(true);
-  const userId = "demo-user";
+  const { user } = useAuth();
+  const userId = user?._id || "demo-user";
 
   useEffect(() => {
     setMounted(true);
@@ -69,7 +73,7 @@ export default function PortfolioPage() {
     });
 
     // Listen for price updates to recalculate portfolio values
-    newSocket.on('priceUpdate', (data: any[]) => {
+    newSocket.on('priceUpdate', (data: Stock[]) => {
       console.log('💹 Received price update for portfolio:', data);
       if (Array.isArray(data) && data.length > 0) {
         updatePortfolioWithPrices(data);
@@ -113,11 +117,11 @@ export default function PortfolioPage() {
     };
   }, [mounted, userId]);
 
-  const updatePortfolioWithPrices = (priceData: any[]) => {
+  const updatePortfolioWithPrices = (priceData: Stock[]) => {
     setPortfolio(prevPortfolio => {
       const updatedStocks = prevPortfolio.stocks.map(stock => {
         const currentPriceData = priceData.find(p => p.symbol === stock.symbol);
-        if (currentPriceData) {
+        if (currentPriceData && currentPriceData.price) {
           const currentPrice = currentPriceData.price;
           const totalValue = currentPrice * stock.quantity;
           const totalCost = stock.avgPrice * stock.quantity;
@@ -179,9 +183,9 @@ export default function PortfolioPage() {
 
   if (!mounted) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-red-900 to-slate-900 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-4 border-purple-500 border-t-transparent mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-red-500 border-t-transparent mx-auto mb-4"></div>
           <p className="text-white text-lg">Loading...</p>
         </div>
       </div>
@@ -190,9 +194,9 @@ export default function PortfolioPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-red-900 to-slate-900 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-4 border-purple-500 border-t-transparent mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-red-500 border-t-transparent mx-auto mb-4"></div>
           <p className="text-white text-lg">Loading portfolio...</p>
         </div>
       </div>
@@ -200,46 +204,25 @@ export default function PortfolioPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      {/* Header */}
-      <header className="bg-black/20 backdrop-blur-lg border-b border-white/10 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-4">
-              <Link
-                href="/"
-                className="text-2xl hover:text-purple-400 transition-colors"
-              >
-                ←
-              </Link>
-              <div className="text-2xl">💼</div>
-              <h1 className="text-2xl font-bold text-white">My Portfolio</h1>
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              {/* Connection Status */}
-              <div className={`flex items-center px-3 py-1.5 rounded-full text-sm font-medium ${
-                isConnected 
-                  ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' 
-                  : 'bg-red-500/20 text-red-400 border border-red-500/30'
-              }`}>
-                <div className={`w-2 h-2 rounded-full mr-2 ${
-                  isConnected ? 'bg-emerald-400 animate-pulse' : 'bg-red-400'
-                }`}></div>
-                {isConnected ? 'Live' : 'Offline'}
-              </div>
-              
-              {lastUpdate && (
-                <div className="text-sm text-gray-300 hidden sm:block">
-                  Last update: {lastUpdate.toISOString().split('T')[1].split('.')[0]}
-                </div>
-              )}
-            </div>
-          </div>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Connection Status */}
+      <div className="mb-6 flex justify-center">
+        <div className={`flex items-center px-4 py-2 rounded-full text-sm font-medium ${
+          isConnected 
+            ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' 
+            : 'bg-red-500/20 text-red-400 border border-red-500/30'
+        }`}>
+          <div className={`w-2 h-2 rounded-full mr-2 ${
+            isConnected ? 'bg-emerald-400 animate-pulse' : 'bg-red-400'
+          }`}></div>
+          {isConnected ? 'Live' : 'Offline'}
+          {lastUpdate && (
+            <span className="ml-2 text-xs">
+              Last update: {lastUpdate.toISOString().split('T')[1].split('.')[0]}
+            </span>
+          )}
         </div>
-      </header>
-
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      </div>
         {/* Portfolio Summary */}
         <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 mb-8">
           <h2 className="text-3xl font-bold text-white mb-6 flex items-center">
@@ -277,7 +260,7 @@ export default function PortfolioPage() {
             <p className="text-gray-400 mb-8">Your portfolio is empty. Start by adding some stocks!</p>
             <Link
               href="/"
-              className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-medium px-8 py-4 rounded-xl transition-all duration-200 inline-block"
+              className="bg-gradient-to-r from-red-600 to-blue-600 hover:from-red-700 hover:to-blue-700 text-white font-medium px-8 py-4 rounded-xl transition-all duration-200 inline-block"
             >
               Browse Stocks
             </Link>
@@ -352,7 +335,7 @@ export default function PortfolioPage() {
                   {/* View Details Button */}
                   <Link
                     href={`/stock/${stock.symbol}`}
-                    className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-medium py-2 px-4 rounded-xl transition-all duration-200 inline-block text-center group-hover:shadow-lg group-hover:shadow-purple-500/25"
+                    className="w-full bg-gradient-to-r from-red-600 to-blue-600 hover:from-red-700 hover:to-blue-700 text-white font-medium py-2 px-4 rounded-xl transition-all duration-200 inline-block text-center group-hover:shadow-lg group-hover:shadow-red-500/25"
                   >
                     View Details →
                   </Link>
@@ -366,12 +349,19 @@ export default function PortfolioPage() {
         <div className="mt-8 text-center">
           <Link
             href="/"
-            className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-medium px-8 py-4 rounded-xl transition-all duration-200 inline-block shadow-lg hover:shadow-purple-500/25"
+            className="bg-gradient-to-r from-red-600 to-blue-600 hover:from-red-700 hover:to-blue-700 text-white font-medium px-8 py-4 rounded-xl transition-all duration-200 inline-block shadow-lg hover:shadow-red-500/25"
           >
             ← Back to Dashboard
           </Link>
         </div>
-    </main>
     </div>
+  );
+}
+
+export default function PortfolioPage() {
+  return (
+    <ProtectedRoute>
+      <PortfolioContent />
+    </ProtectedRoute>
   );
 }

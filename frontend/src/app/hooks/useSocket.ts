@@ -6,7 +6,7 @@ import { io, Socket } from "socket.io-client";
 let socket: Socket;
 
 export function useSocket() {
-  const [prices, setPrices] = useState<any[]>([]);
+  const [prices, setPrices] = useState<unknown[]>([]);
 
   useEffect(() => {
     // connect to backend
