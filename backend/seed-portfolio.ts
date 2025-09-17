@@ -1,5 +1,9 @@
-const mongoose = require('mongoose');
-const Portfolio = require('./src/models/Portfolio').default;
+import mongoose from 'mongoose';
+import Portfolio from './src/models/Portfolio';
+import dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config();
 
 // Mock portfolio data
 const mockPortfolioData = {
@@ -45,6 +49,4 @@ async function seedPortfolio() {
   }
 }
 
-// Load environment variables
-require('dotenv').config();
 seedPortfolio();

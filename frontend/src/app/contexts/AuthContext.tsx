@@ -55,10 +55,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, []);
 
   const login = (userData: User, userToken: string) => {
+    console.log('🔐 AuthContext: Login called with user:', userData);
     setUser(userData);
     setToken(userToken);
     localStorage.setItem('user', JSON.stringify(userData));
     localStorage.setItem('token', userToken);
+    console.log('🔐 AuthContext: User state updated, isAuthenticated:', !!userData && !!userToken);
   };
 
   const logout = () => {

@@ -23,17 +23,8 @@ export default function LayoutWrapper({ children }: LayoutWrapperProps) {
     router.push("/landing");
   };
 
-  // Prevent hydration mismatch by not rendering until mounted
-  if (!mounted) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-orange-900 to-slate-900 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-4 border-orange-500 border-t-transparent mx-auto mb-4"></div>
-          <p className="text-white text-lg">Loading...</p>
-        </div>
-      </div>
-    );
-  }
+  // Show loading only for auth-related content, not the entire layout
+  const showAuthContent = mounted;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-orange-900 to-slate-900 flex flex-col">
@@ -54,7 +45,22 @@ export default function LayoutWrapper({ children }: LayoutWrapperProps) {
 
             {/* Navigation Links */}
             <nav className="hidden md:flex items-center space-x-6">
-              {isAuthenticated ? (
+              {!showAuthContent ? (
+                <>
+                  <Link
+                    href="/"
+                    className="text-gray-300 hover:text-white transition-colors duration-200 font-medium"
+                  >
+                    Dashboard
+                  </Link>
+                  <Link
+                    href="/portfolio"
+                    className="text-gray-300 hover:text-white transition-colors duration-200 font-medium"
+                  >
+                    Portfolio
+                  </Link>
+                </>
+              ) : showAuthContent && isAuthenticated ? (
                 <>
                   <Link
                     href="/"
@@ -95,7 +101,7 @@ export default function LayoutWrapper({ children }: LayoutWrapperProps) {
 
             {/* User Info and Actions */}
             <div className="flex items-center space-x-4">
-              {isAuthenticated && user ? (
+              {showAuthContent && isAuthenticated && user ? (
                 <>
                   <div className="hidden sm:block text-right">
                     <div className="text-sm font-medium text-white">{user.name}</div>

@@ -32,6 +32,15 @@ class ChangeStreamService {
         });
       }
 
+      // Check if we're using local MongoDB (change streams not supported)
+      const isLocalMongoDB = mongoose.connection.host === '127.0.0.1' || mongoose.connection.host === 'localhost';
+      if (isLocalMongoDB) {
+        console.log('⚠️  Local MongoDB detected - change streams not supported, using polling instead');
+        this.startPollingMode();
+        this.isWatching = true;
+        return;
+      }
+
       console.log('📡 Starting MongoDB change streams...');
       
       // Watch for stock collection changes
@@ -42,7 +51,10 @@ class ChangeStreamService {
       
     } catch (error) {
       console.error('❌ Failed to start change streams:', error);
-      // Don't throw error, app should continue without change streams
+      // Fallback to polling mode
+      console.log('🔄 Falling back to polling mode...');
+      this.startPollingMode();
+      this.isWatching = true;
     }
   }
 
@@ -70,10 +82,16 @@ class ChangeStreamService {
         this.handleStockChange(change);
       });
 
-      stockChangeStream.on('error', (error) => {
+      stockChangeStream.on('error', (error: any) => {
         console.error('❌ Stock change stream error:', error);
-        // Attempt to restart the change stream
-        setTimeout(() => this.restartWatching(), 5000);
+        // Don't restart if it's a local MongoDB error
+        if (error.code === 40573) {
+          console.log('🔄 Change streams not supported, switching to polling mode...');
+          this.startPollingMode();
+        } else {
+          // Attempt to restart the change stream for other errors
+          setTimeout(() => this.restartWatching(), 5000);
+        }
       });
 
       stockChangeStream.on('close', () => {
@@ -276,6 +294,19 @@ class ChangeStreamService {
     } catch (error) {
       console.error('❌ Error stopping change streams:', error);
     }
+  }
+
+  // Polling mode for local MongoDB
+  private startPollingMode() {
+    console.log('🔄 Starting polling mode for real-time updates...');
+    // Poll every 30 seconds to check for stock updates
+    setInterval(async () => {
+      try {
+        await this.broadcastCurrentPrices();
+      } catch (error) {
+        console.error('❌ Error in polling mode:', error);
+      }
+    }, 30000);
   }
 
   // Graceful shutdown

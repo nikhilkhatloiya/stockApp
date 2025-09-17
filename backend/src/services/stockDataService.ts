@@ -35,8 +35,14 @@ class StockDataService {
   }
 
   private initializeProviders() {
+    console.log('🔍 Debug: Alpha Vantage key exists:', !!process.env.ALPHA_VANTAGE_API_KEY);
+    console.log('🔍 Debug: Alpha Vantage key length:', process.env.ALPHA_VANTAGE_API_KEY?.length);
+    console.log('🔍 Debug: Finnhub key exists:', !!process.env.FINNHUB_API_KEY);
+    console.log('🔍 Debug: Finnhub key length:', process.env.FINNHUB_API_KEY?.length);
+    
     // Alpha Vantage Provider
-    if (process.env.ALPHA_VANTAGE_API_KEY && process.env.ALPHA_VANTAGE_API_KEY !== 'JNDJNAUSHHKZOMOH') {
+    if (process.env.ALPHA_VANTAGE_API_KEY && process.env.ALPHA_VANTAGE_API_KEY.length > 10) {
+      console.log('✅ Adding Alpha Vantage provider');
       this.providers.push({
         name: 'Alpha Vantage',
         fetchQuote: this.fetchAlphaVantageQuote.bind(this),
@@ -45,7 +51,8 @@ class StockDataService {
     }
 
     // Finnhub Provider
-    if (process.env.FINNHUB_API_KEY && process.env.FINNHUB_API_KEY !== 'd2vtfi9r01qm5lo9rmhgd2vtfi9r01qm5lo9rmi0d2vtfi9r01qm5lo9rmhgd2vtfi9r01qm5lo9rmi0') {
+    if (process.env.FINNHUB_API_KEY && process.env.FINNHUB_API_KEY.length > 10) {
+      console.log('✅ Adding Finnhub provider');
       this.providers.push({
         name: 'Finnhub',
         fetchQuote: this.fetchFinnhubQuote.bind(this),

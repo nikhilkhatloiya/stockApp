@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({
@@ -12,6 +13,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
+  const { login } = useAuth();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -37,10 +39,11 @@ export default function LoginPage() {
       const data = await response.json();
 
       if (response.ok) {
-        // Store user data in localStorage
-        localStorage.setItem("user", JSON.stringify(data.user));
-        localStorage.setItem("token", data.token);
+        console.log('🔐 Login: Success, updating AuthContext with:', data.user);
+        // Update AuthContext state
+        login(data.user, data.token);
         
+        console.log('🔐 Login: Redirecting to dashboard');
         // Redirect to dashboard
         router.push("/");
       } else {

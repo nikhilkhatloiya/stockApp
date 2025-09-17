@@ -84,25 +84,21 @@ function PortfolioContent() {
     // Fetch initial portfolio data
     const fetchPortfolioData = async () => {
       try {
-        const response = await fetch(`${SOCKET_URL.replace('ws://', 'http://').replace('wss://', 'https://')}/api/portfolio/${userId}`);
-        const data = await response.json();
-        console.log(" data123", data);
-        setPortfolio(data);
+        console.log('📊 Fetching portfolio for userId:', userId);
+        const response = await fetch(`http://localhost:4000/api/portfolio/${userId}`);
+        if (response.ok) {
+          const data = await response.json();
+          console.log('📊 Portfolio data received:', data);
+          setPortfolio(data);
+        } else {
+          console.error('Failed to fetch portfolio, status:', response.status);
+          // Set empty portfolio if no data found
+          setPortfolio({ stocks: [], totalValue: 0, totalGain: 0, totalGainPercent: 0 });
+        }
       } catch (error) {
         console.error('Error fetching portfolio data:', error);
-        // Set demo data if API fails
-        setPortfolio({
-          stocks: [
-            { symbol: 'AAPL', quantity: 10, avgPrice: 150.00 },
-            { symbol: 'GOOGL', quantity: 5, avgPrice: 2800.00 },
-            { symbol: 'MSFT', quantity: 8, avgPrice: 300.00 },
-            { symbol: 'AMZN', quantity: 3, avgPrice: 3200.00 },
-            { symbol: 'TSLA', quantity: 2, avgPrice: 800.00 }
-          ],
-          totalValue: 0,
-          totalGain: 0,
-          totalGainPercent: 0
-        });
+        // Set empty portfolio on error
+        setPortfolio({ stocks: [], totalValue: 0, totalGain: 0, totalGainPercent: 0 });
       } finally {
         setLoading(false);
       }

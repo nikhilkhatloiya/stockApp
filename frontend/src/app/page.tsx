@@ -413,14 +413,16 @@ function DashboardContent() {
 }
 
 export default function HomePage() {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, user } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
+    console.log('🏠 HomePage: isAuthenticated:', isAuthenticated, 'loading:', loading, 'user:', user);
     if (!loading && !isAuthenticated) {
+      console.log('🏠 HomePage: Redirecting to landing page');
       router.push("/landing");
     }
-  }, [isAuthenticated, loading, router]);
+  }, [isAuthenticated, loading, router, user]);
 
   if (loading) {
     return (
