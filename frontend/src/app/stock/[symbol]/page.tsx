@@ -180,7 +180,7 @@ export default function StockDetailPage() {
           <p className="text-gray-400 mb-8">The stock symbol &quot;{symbol}&quot; could not be found.</p>
           <Link
             href="/"
-            className="bg-gradient-to-r from-red-600 to-blue-600 hover:from-red-700 hover:to-blue-700 text-white font-medium px-8 py-4 rounded-xl transition-all duration-200 inline-block"
+            className="bg-gradient-to-r from-orange-500 to-pink-500 hover:opacity-90 text-white font-medium px-8 py-4 rounded-xl transition-all duration-200 inline-block"
           >
             ← Back to Dashboard
           </Link>
@@ -190,37 +190,28 @@ export default function StockDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-red-900 to-slate-900">
+    
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Header */}
-      <header className="bg-black/20 backdrop-blur-lg border-b border-white/10 sticky top-0 z-50">
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center space-x-4">
-              <Link
-                href="/"
-                className="text-2xl hover:text-red-400 transition-colors"
-              >
-                ←
-              </Link>
+              <Link href="/" className="text-2xl hover:text-orange-500 transition-colors">←</Link>
               <div className="text-2xl">📈</div>
-              <h1 className="text-2xl font-bold text-white">{stock.symbol}</h1>
+              <h1 className="text-2xl font-bold text-gray-900">{stock.symbol}</h1>
             </div>
-            
             <div className="flex items-center space-x-4">
-              {/* Connection Status */}
-              <div className={`flex items-center px-3 py-1.5 rounded-full text-sm font-medium ${
-                isConnected 
-                  ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' 
-                  : 'bg-red-500/20 text-red-400 border border-red-500/30'
-              }`}>
-                <div className={`w-2 h-2 rounded-full mr-2 ${
-                  isConnected ? 'bg-emerald-400 animate-pulse' : 'bg-red-400'
-                }`}></div>
+              <div className={`flex items-center px-3 py-1.5 rounded-full text-sm font-medium ${isConnected
+                  ? 'bg-emerald-100 text-emerald-600 border border-emerald-200'
+                  : 'bg-red-100 text-red-600 border border-red-200'
+                }`}>
+                <div className={`w-2 h-2 rounded-full mr-2 ${isConnected ? 'bg-emerald-600 animate-pulse' : 'bg-red-600'
+                  }`}></div>
                 {isConnected ? 'Live' : 'Offline'}
               </div>
-              
               {lastUpdate && (
-                <div className="text-sm text-gray-300 hidden sm:block">
+                <div className="text-sm text-gray-500 hidden sm:block">
                   Last update: {lastUpdate.toISOString().split('T')[1].split('.')[0]}
                 </div>
               )}
@@ -229,144 +220,108 @@ export default function StockDetailPage() {
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* Stock Overview Card */}
-        <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 mb-8">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-8">
+        <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-md">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6">
             <div className="flex-1">
-              <div className="flex items-center space-x-4 mb-4">
-                <h1 className="text-4xl font-bold text-white">{stock.symbol}</h1>
-                <span className="text-3xl">{getChangeIcon(stock.change)}</span>
+              <div className="flex items-center space-x-4 mb-2">
+                <h1 className="text-3xl font-bold text-gray-900">{stock.symbol}</h1>
+                <span className="text-2xl">{getChangeIcon(stock.change)}</span>
               </div>
-              <h2 className="text-xl text-gray-300 mb-2">{stock.name}</h2>
+              <h2 className="text-lg text-gray-600 mb-1">{stock.name}</h2>
               {stock.metadata?.exchange && (
-                <span className="inline-block bg-red-500/20 text-red-300 text-sm px-3 py-1 rounded-full">
+                <span className="inline-block bg-orange-100 text-orange-600 text-xs px-3 py-1 rounded-full">
                   {stock.metadata.exchange}
                 </span>
               )}
             </div>
-            
-            <div className="mt-6 lg:mt-0 lg:text-right">
-              <div className="text-5xl font-bold text-white mb-2">
-                {formatCurrency(stock.price)}
-              </div>
-              <div className={`inline-flex items-center px-4 py-2 rounded-full text-lg font-medium ${getChangeBgColor(stock.change)} ${getChangeColor(stock.change)}`}>
+
+            <div className="mt-4 lg:mt-0 lg:text-right">
+              <div className="text-3xl font-bold text-gray-900 mb-2">{formatCurrency(stock.price)}</div>
+              <div className={`inline-flex items-center px-4 py-1.5 rounded-full text-sm font-medium ${getChangeBgColor(stock.change)} ${getChangeColor(stock.change)}`}>
                 {stock.change >= 0 ? '+' : ''}{formatCurrency(stock.change)} ({stock.changePercent >= 0 ? '+' : ''}{stock.changePercent.toFixed(2)}%)
               </div>
             </div>
           </div>
 
           {/* Key Metrics Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-gray-700">
             <div className="text-center">
-              <div className="text-2xl font-bold text-white mb-1">{formatCurrency(stock.previousClose)}</div>
-              <div className="text-sm text-gray-400">Previous Close</div>
+              <div className="text-lg font-semibold text-gray-900 mb-1">{formatCurrency(stock.previousClose)}</div>
+              <div className="text-sm text-gray-500">Previous Close</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-white mb-1">{formatCurrency(stock.dayHigh)}</div>
-              <div className="text-sm text-gray-400">Day High</div>
+              <div className="text-lg font-semibold text-gray-900 mb-1">{formatCurrency(stock.dayHigh)}</div>
+              <div className="text-sm text-gray-500">Day High</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-white mb-1">{formatCurrency(stock.dayLow)}</div>
-              <div className="text-sm text-gray-400">Day Low</div>
+              <div className="text-lg font-semibold text-gray-900 mb-1">{formatCurrency(stock.dayLow)}</div>
+              <div className="text-sm text-gray-500">Day Low</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-white mb-1">{formatVolume(stock.volume)}</div>
-              <div className="text-sm text-gray-400">Volume</div>
+              <div className="text-lg font-semibold text-gray-900 mb-1">{formatVolume(stock.volume)}</div>
+              <div className="text-sm text-gray-500">Volume</div>
             </div>
           </div>
         </div>
 
         {/* Price Chart Placeholder */}
-        <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 mb-8">
-          <h3 className="text-2xl font-bold text-white mb-6 flex items-center">
-            <span className="mr-3">📊</span>
+        <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-md">
+          <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
+            <span className="mr-2">📊</span>
             Price Chart
           </h3>
-          <div className="h-64 bg-white/5 rounded-xl border border-white/10 flex items-center justify-center">
-            <div className="text-center">
-              <div className="text-4xl mb-4">📈</div>
-              <p className="text-gray-400">Chart component would go here</p>
-              <p className="text-sm text-gray-500 mt-2">Integrate with Chart.js, Recharts, or similar</p>
+          <div className="h-64 bg-gray-50 border border-gray-100 rounded-xl flex items-center justify-center">
+            <div className="text-center text-gray-400">
+              <div className="text-4xl mb-2">📈</div>
+              Chart component would go here
             </div>
           </div>
         </div>
 
-        {/* Additional Information */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Company Info */}
-          <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
-            <h3 className="text-xl font-bold text-white mb-4 flex items-center">
-              <span className="mr-3">🏢</span>
+        {/* Company & Trading Info */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-md">
+            <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
+              <span className="mr-2">🏢</span>
               Company Information
             </h3>
-            <div className="space-y-3">
-              <div className="flex justify-between">
-                <span className="text-gray-400">Symbol</span>
-                <span className="text-white font-medium">{stock.symbol}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">Name</span>
-                <span className="text-white font-medium text-right">{stock.name}</span>
-              </div>
-              {stock.metadata?.sector && (
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Sector</span>
-                  <span className="text-white font-medium">{stock.metadata.sector}</span>
-                </div>
-              )}
-              <div className="flex justify-between">
-                <span className="text-gray-400">Last Updated</span>
-                <span className="text-white font-medium">
-                  {new Date(stock.lastUpdated).toISOString().split('T')[1].split('.')[0]}
-                </span>
-              </div>
+            <div className="space-y-2 text-gray-700">
+              <div className="flex justify-between"><span>Symbol</span><span className="font-medium">{stock.symbol}</span></div>
+              <div className="flex justify-between"><span>Name</span><span className="font-medium text-right">{stock.name}</span></div>
+              {stock.metadata?.sector && <div className="flex justify-between"><span>Sector</span><span className="font-medium">{stock.metadata.sector}</span></div>}
+              <div className="flex justify-between"><span>Last Updated</span><span className="font-medium">{stock.lastUpdated
+                ? new Date(stock.lastUpdated).toLocaleTimeString()
+                : "N/A"}</span></div>
             </div>
           </div>
 
-          {/* Trading Info */}
-          <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
-            <h3 className="text-xl font-bold text-white mb-4 flex items-center">
-              <span className="mr-3">💹</span>
+          <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-md">
+            <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center">
+              <span className="mr-2">💹</span>
               Trading Information
             </h3>
-            <div className="space-y-3">
-              <div className="flex justify-between">
-                <span className="text-gray-400">Current Price</span>
-                <span className="text-white font-medium text-lg">{formatCurrency(stock.price)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">Change</span>
-                <span className={`font-medium ${getChangeColor(stock.change)}`}>
-                  {stock.change >= 0 ? '+' : ''}{formatCurrency(stock.change)}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">Change %</span>
-                <span className={`font-medium ${getChangeColor(stock.change)}`}>
-                  {stock.changePercent >= 0 ? '+' : ''}{stock.changePercent.toFixed(2)}%
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">Day Range</span>
-                <span className="text-white font-medium text-right">
-                  {formatCurrency(stock.dayLow)} - {formatCurrency(stock.dayHigh)}
-                </span>
-              </div>
+            <div className="space-y-2 text-gray-700">
+              <div className="flex justify-between"><span>Current Price</span><span className="font-medium">{formatCurrency(stock.price)}</span></div>
+              <div className="flex justify-between"><span>Change</span><span className={`font-medium ${getChangeColor(stock.change)}`}>{stock.change >= 0 ? '+' : ''}{formatCurrency(stock.change)}</span></div>
+              <div className="flex justify-between"><span>Change %</span><span className={`font-medium ${getChangeColor(stock.change)}`}>{stock.changePercent >= 0 ? '+' : ''}{stock.changePercent.toFixed(2)}%</span></div>
+              <div className="flex justify-between"><span>Day Range</span><span className="font-medium text-right">{formatCurrency(stock.dayLow)} - {formatCurrency(stock.dayHigh)}</span></div>
             </div>
           </div>
         </div>
 
         {/* Back to Dashboard */}
-        <div className="mt-8 text-center">
+        <div className="mt-6 text-center">
           <Link
             href="/"
-            className="bg-gradient-to-r from-red-600 to-blue-600 hover:from-red-700 hover:to-blue-700 text-white font-medium px-8 py-4 rounded-xl transition-all duration-200 inline-block shadow-lg hover:shadow-red-500/25"
+            className="bg-gradient-to-r from-orange-500 to-pink-500 hover:opacity-90 text-white font-medium px-6 py-3 rounded-lg inline-block shadow-md transition"
           >
             ← Back to Dashboard
           </Link>
         </div>
       </main>
     </div>
+
   );
 }

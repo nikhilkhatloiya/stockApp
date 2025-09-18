@@ -1,3 +1,37 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  
+  @keyframes moveLines {
+    0% { background-position: 0 0; }
+    100% { background-position: 100% 100%; }
+  }
+  
+  .animated-gradient {
+    background: linear-gradient(270deg, #f12427f4, #f9d423, #87270f, #ff4e50);
+    background-size: 600% 600%;
+    animation: gradientShift 20s ease infinite;
+  }
+  
+  .lines-bg::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      45deg,
+      rgba(255,255,255,0.05),
+      rgba(255,255,255,0.05) 1px,
+      transparent 1px,
+      transparent 10px
+    );
+    animation: moveLines 15s linear infinite;
+    z-index: -1;
+    pointer-events: none;
+  }
+  
