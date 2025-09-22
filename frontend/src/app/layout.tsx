@@ -6,6 +6,7 @@ import "./globals.css";
 import { MUIThemeProvider } from "./components/MUIThemeProvider";
 import { AuthProvider } from "./contexts/AuthContext";
 import LayoutWrapper from "./components/LayoutWrapper";
+import { SessionProvider } from "./components/SessionProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,13 +31,15 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <MUIThemeProvider>
-          <AuthProvider>
-            <LayoutWrapper>
-              {children}
-            </LayoutWrapper>
-          </AuthProvider>
-        </MUIThemeProvider>
+        <SessionProvider>
+          <MUIThemeProvider>
+            <AuthProvider>
+              <LayoutWrapper>
+                {children}
+              </LayoutWrapper>
+            </AuthProvider>
+          </MUIThemeProvider>
+        </SessionProvider>
       </body>
     </html>
   );
