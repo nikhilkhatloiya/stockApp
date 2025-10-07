@@ -32,3 +32,4 @@ const SidebarToggle: React.FC<SidebarToggleProps> = ({ isOpen, onToggle }) => {
 };
 
 export default SidebarToggle;
+
