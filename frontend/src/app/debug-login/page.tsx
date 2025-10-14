@@ -27,10 +27,10 @@ export default function DebugLoginPage() {
     setDebugInfo("Starting login process...");
 
     try {
-      setDebugInfo("Making API request to: http://localhost:4000/api/users/login");
+      setDebugInfo("Making API request to: NEXT_LOCAL/api/users/login");
       console.log("Login attempt with:", formData);
       
-      const response = await fetch("http://localhost:4000/api/users/login", {
+      const response = await fetch("NEXT_LOCAL/api/users/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

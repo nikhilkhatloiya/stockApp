@@ -10,7 +10,7 @@ export function useSocket() {
 
   useEffect(() => {
     // connect to backend
-    socket = io("http://localhost:4000");
+    socket = io("NEXT_LOCAL");
 
     socket.on("connect", () => {
       console.log("✅ Connected to WebSocket:", socket.id);

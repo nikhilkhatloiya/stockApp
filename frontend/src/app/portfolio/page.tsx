@@ -85,7 +85,7 @@ function PortfolioContent() {
     const fetchPortfolioData = async () => {
       try {
         console.log('📊 Fetching portfolio for userId:', userId);
-        const response = await fetch(`http://localhost:4000/api/portfolio/${userId}`);
+        const response = await fetch(`NEXT_LOCAL/api/portfolio/${userId}`);
         if (response.ok) {
           const data = await response.json();
           console.log('📊 Portfolio data received:', data);

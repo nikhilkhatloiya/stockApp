@@ -37,7 +37,7 @@ export default function SignupPage() {
     }
 
     try {
-      const response = await fetch("http://localhost:4000/api/users/register", {
+      const response = await fetch("NEXT_LOCAL/api/users/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
